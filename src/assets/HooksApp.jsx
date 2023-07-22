@@ -6,7 +6,8 @@ export const HooksApp = () => {
 <>
 <h1>Aplicación de hooks</h1>
 <hr/>
-<UsuariosComponent></UsuariosComponent>
+<FormularioComponent></FormularioComponent>
+
 </>
   )
 }
