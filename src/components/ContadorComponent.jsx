@@ -12,4 +12,4 @@ export const ContadorComponent = () => {
             <button className="btn btn-primary" onClick={() => decrementar(1,false)}>-1</button>
         </>
     )
-}
+} 
