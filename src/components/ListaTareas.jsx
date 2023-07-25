@@ -1,81 +1,126 @@
+import { useForm } from "../hooks/useForm"
+import { useReducer,formState,dispatch } from "react"
+
 const initialState = [{
-    id: 1,
+    id: new Date().getTime(),
     tarea: 'Explicar Reducers',
     finalizada: false
 }]
 
-const nuevaTarea = {
-    id: 2,
-    tarea: 'Explicar useReducer',
-    finalizada: false
-}
 
 
-
-const agregarTarea = {
-    type: '[TAREAS] Agregar Tarea',
-    payload: nuevaTarea
-}
-const editarTarea = {
-    type: '[TAREAS] Editar Tarea',
-    payload: nuevaTarea
-}
-const eliminarTarea = {
-    type: '[TAREAS] Eliminar Tarea',
-}
-const borrarTareas = {
-    type: '[TAREAS] Borrar tareas Tarea',
-}
 
 const tareaReducer = (state = initialState, action = {}) => {
 
     switch (action.type) {
         case '[TAREAS] Agregar Tarea':
             return [...state, action.payload]
-        case '[TAREAS] Editar Tarea':
-            //return [...state, action.payload]
+        case '[TAREAS] Finalizar Tarea':
+return state.map(tarea => {
+    if(tarea.id === action.payload) {
+        return {...tarea,
+        finalizada: !tarea.finalizada}
+    }
+    return tarea
+})
         case '[TAREAS] Eliminar Tarea':
-            //return [...state, action.payload]
-        case '[TAREAS] Borrar tareas Tarea':
+            return state.filter(tarea => tarea.id !== action.payload)
+        case '[TAREAS] Borrar tareas':
             return []
 
         default:
-            break;
+            return state
     }
-    return state
 
 }
 
-tareaReducer(initialState, agregarTarea)
+//tareaReducer(initialState, agregarTarea)
 
-console.log(tareaReducer(initialState, agregarTarea))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//console.log(tareaReducer(initialState, agregarTarea))
 
 
 
 export const ListaTareas = () => {
+
+    const [tareasState, dispatch] = useReducer(tareaReducer, initialState)
+
+    const {tarea,formState,onInputChange} = useForm({tarea: '' })
+    const agregarTarea = (event) => {
+        event.preventDefault()
+        if(formState.tarea == '') return
+        console.log(formState)
+        const tarea = {
+            id: new Date().getTime(),
+            tarea: formState.tarea,
+            finalizada: false
+
+        }
+        const action = {
+            type: '[TAREAS] Agregar Tarea',
+            payload: tarea
+        }
+        dispatch(action)
+   
+    
+}
+
+const finalizarTarea = ({id}) =>{
+  
+    const action = {
+        type: '[TAREAS] Finalizar Tarea',
+        payload: id
+    } 
+    dispatch(action)
+
+}
+const eliminarTarea = ({id}) => {
+    const action = {
+        type: '[TAREAS] Eliminar tarea',
+        payload: id
+    }
+    dispatch(action)
+}
+const reset = () => {
+    const action ={
+        type: '[TAREAS] Borrar tareas',
+        payload: ''
+    }
+    dispatch(action)
+}
+
     return (
-        <div>ListaTareas</div>
+        <>
+        <form onSubmit={agregarTarea}>
+  <div className="form-group">
+    <input 
+    type="text" 
+    className="form-control" 
+    name="tarea" 
+    placeholder="Ingresa tarea"
+    value = {tarea}
+    onChange={onInputChange}/>
+  </div>
+  <button type="submit" className="btn btn-primary">Submit</button>
+  <button type="button" className="btn btn-danger" onClick={reset}>Reset</button>
+</form>
+<hr></hr>
+<ul className="list-group">
+{tareasState.map (item =>{
+    return (
+        <li key={item.id} className="list-group-item d-flex justify-content-between">
+            <span>{item.tarea}</span>
+            <div>
+            <input type="checkbox"
+            value={item.finalizada}
+            onChange={() =>finalizarTarea(item)}
+            />
+            <button className="btn btn-danger"
+             onClick={() => eliminarTarea(item)}>Borrar</button>
+            </div>
+            </li>
+    )
+})}
+</ul>
+        </>
     )
 }
